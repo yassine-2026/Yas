@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # The Python Backend for ML Processing
+  ai-backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/static:/app/static
+    # Uncomment to enable GPU support natively for SDXL and TTS
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    environment:
+      - MODEL_MODE=local
+      - GPU_ENABLED=true
+
+  # The Frontend UI
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+    environment:
+      - VITE_API_URL=http://localhost:8000
